@@ -29,6 +29,10 @@ pub mod voting {
       instructions::handler_create_poll(ctx, description, start, end)  
     }
 
+    pub fn give_vote(ctx:Context<Vote>,poll_id:u64,candidate_id:u64)->Result<()>{
+        instructions::handler_vote(ctx,poll_id,candidate_id)
+    }
+
     
 
 }

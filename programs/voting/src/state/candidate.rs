@@ -9,5 +9,5 @@ pub struct Candidate{
 	#[max_len(80)]
 	pub name:String,
 	pub votes:u64,
-	pub has_registed:bool,
+	pub has_registered:bool,
 }
