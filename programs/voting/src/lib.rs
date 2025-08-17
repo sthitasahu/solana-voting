@@ -28,6 +28,10 @@ pub mod voting {
     pub fn create_poll(ctx:Context<CreatePoll>,description:String,start:u64,end:u64)->Result<()>{
       instructions::handler_create_poll(ctx, description, start, end)  
     }
+   
+   pub fn register_candidate(ctx:Context<RegisterCandidate>,poll_id:u64,name:String)->Result<()>{
+     instructions::register_candidate(ctx,poll_id,name)
+   }
 
     pub fn give_vote(ctx:Context<Vote>,poll_id:u64,candidate_id:u64)->Result<()>{
         instructions::handler_vote(ctx,poll_id,candidate_id)

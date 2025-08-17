@@ -39,7 +39,7 @@ pub struct RegisterCandidate<'info>{
 
 }
 
-pub fn vote(ctx:Context<RegisterCandidate>,
+pub fn register_candidate(ctx:Context<RegisterCandidate>,
 	        poll_id:u64,
 			name:String
 			,
