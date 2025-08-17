@@ -1,6 +1,6 @@
 import { AnchorProvider, BN, Program, Wallet } from "@coral-xyz/anchor";
-import idl from '../../../../target/idl/voting.json'
-import { Voting } from "../../../../target/types/voting"
+import idl from '../idl/voting.json'
+import {Voting}  from '../idl/voting'
 import {
 	PublicKey,
 	Connection,
