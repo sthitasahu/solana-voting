@@ -19,13 +19,12 @@ const RegisterCandidate = ({
   pollId: number
   pollAddress: string
 }) => {
-  const { publicKey, sendTransaction, signTransaction } = useWallet()
   const [candidateName, setCandidateName] = useState<string>('')
-
   const dispatch = useDispatch()
   const { setRegModal } = globalActions
   const { regModal } = useSelector((states: RootState) => states.globalStates)
 
+  const { publicKey, signTransaction, sendTransaction } = useWallet()
   const program = useMemo(
     () => getProvider(publicKey, signTransaction, sendTransaction),
     [publicKey, signTransaction, sendTransaction]
@@ -41,27 +40,26 @@ const RegisterCandidate = ({
           const tx = await registerCandidate(
             program!,
             publicKey!,
-            pollId,
-            candidateName
+            pollId!,
+            candidateName!
           )
-
           setCandidateName('')
           dispatch(setRegModal('scale-0'))
 
-          await fetchPollDetails(program, pollAddress)
-          await fetchAllCandidates(program, pollAddress)
+          await fetchPollDetails(program!, pollAddress!)
+          await fetchAllCandidates(program!, pollAddress!)
 
           console.log(tx)
           resolve(tx as any)
         } catch (error) {
-          console.error('Transaction failed:', error)
+          console.error('Registration failed:', error)
           reject(error)
         }
       }),
       {
-        pending: 'Approve transaction...',
-        success: 'Transaction successful 👌',
-        error: 'Encountered error 🤯',
+        pending: 'Processing registration...',
+        success: 'Candidate registered successfully 👌',
+        error: 'Failed to register candidate 🤯',
       }
     )
   }
@@ -69,7 +67,7 @@ const RegisterCandidate = ({
   return (
     <div
       className={`fixed top-0 left-0 w-screen h-screen flex items-center justify-center
-      bg-black bg-opacity-50 transform z-[3000] transition-transform duration-300 ${regModal}`}
+      bg-black bg-opacity-50 transform z-[3000] transition-transform ${regModal} duration-300`}
     >
       <div className="bg-white shadow-lg shadow-slate-900 rounded-xl w-11/12 md:w-2/5 h-7/12 p-6">
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -90,7 +88,7 @@ const RegisterCandidate = ({
             <input
               type="text"
               id="description"
-              placeholder="Briefly describe the purpose of this poll..."
+              placeholder="Enter the candidate's name..."
               required
               className="mt-2 block w-full py-3 px-4 border border-gray-300
               rounded-lg shadow-sm focus:ring-2 focus:ring-black
@@ -103,9 +101,8 @@ const RegisterCandidate = ({
           <div className="flex justify-center w-full">
             <button
               type="submit"
-              disabled={!program || !publicKey}
               className="bg-black text-white font-bold py-3 px-6 rounded-lg
-              hover:bg-gray-900 transition duration-200 w-full disabled:bg-opacity-70"
+              hover:bg-gray-900 transition duration-200 w-full"
             >
               Register
             </button>

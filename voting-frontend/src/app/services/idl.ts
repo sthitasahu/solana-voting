@@ -6,11 +6,11 @@ import {
 	Connection,
 	SystemProgram,
 	TransactionSignature,
-	sendAndConfirmRawTransaction
+	
 } from "@solana/web3.js"
 import { Candidate, Poll } from '../utils/interface'
 import { store } from '../store'
-import { globalActions } from '../store/actions/globalActions'
+import { globalActions } from '../store/globalSlices'
 
 
 const Program_ID = new PublicKey(idl.address)
@@ -38,6 +38,27 @@ export const getProvider = (
 }
 
 
+export const getReadonlyProvider = (): Program<Voting> => {
+	const connection = new Connection(RPC_URL, 'confirmed')
+  
+	// Use a dummy wallet for read-only operations
+	const dummyWallet = {
+	  publicKey: PublicKey.default,
+	  signTransaction: async () => {
+		throw new Error('Read-only provider cannot sign transactions.')
+	  },
+	  signAllTransactions: async () => {
+		throw new Error('Read-only provider cannot sign transactions.')
+	  },
+	}
+  
+	const provider = new AnchorProvider(connection, dummyWallet as any, {
+	  commitment: 'processed',
+	})
+  
+	return new Program<Voting>(idl as any, provider)
+  }
+  
 //get the counter pda 
 export const getCounter = async (program: Program<Voting>): Promise<BN> => {
 	try {
@@ -314,7 +335,7 @@ export const fetchAllPolls = async (
 	  candidates: poll.candidates.toNumber(),
 	}
   
-	store.dispatch(setPoll(serialized))
+	store.dispatch(globalActions.setPoll(serialized))
 	return serialized
   }
   
@@ -344,7 +365,7 @@ const serializedPoll = (polls: any[]): Poll[] =>
 		  return candidate.account.pollId.eq(PID)
 		})
 	   
-		store.dispatch(setCandidates(serializedCandidates(candidates)))
+		store.dispatch(globalActions.setCandidates(serializedCandidates(candidates)))
 		return candidates as unknown as Candidate[]
 	  }
 	  

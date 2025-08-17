@@ -96,8 +96,13 @@ const Page: NextPage = () => {
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-semibold text-gray-700"
+              className="block text-sm font-semibold text-gray-700 flex items-center gap-2"
             >
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 text-white mr-2 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z" />
+                </svg>
+              </span>
               Poll Description
             </label>
             <input
