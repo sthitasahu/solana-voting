@@ -396,7 +396,7 @@ const serializedPoll = (polls: any[]): Poll[] =>
 		)
 	  
 		try {
-		  const voterAccount = await program.account.voter.fetch(voterPda)
+		  const voterAccount = await program.account.voter.fetchNullable(voterPda)
 		  if (!voterAccount || !voterAccount.hasVoted) {
 			return false // Default value if no account exists or hasn't voted
 		  }
