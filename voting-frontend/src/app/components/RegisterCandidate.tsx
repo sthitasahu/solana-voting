@@ -11,6 +11,8 @@ import {
 } from '../services/idl'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { toast } from 'react-toastify'
+import { PublicKey } from '@solana/web3.js'
+import { BN } from '@coral-xyz/anchor'
 
 const RegCandidate = ({
   pollId,
@@ -38,11 +40,19 @@ const RegCandidate = ({
     await toast.promise(
       new Promise<void>(async (resolve, reject) => {
         try {
+          const [registrationsPda] = PublicKey.findProgramAddressSync(
+            [Buffer.from('registrations')],
+            program.programId
+          )
+          const regs = await program.account.registrations.fetch(registrationsPda);
+          const CID = regs.count.add(new BN(1));
+
           const tx = await registerCandidate(
             program,
             publicKey,
             pollId,
-            candidateName
+            candidateName,
+            
           )
 
           setCandidateName('')
