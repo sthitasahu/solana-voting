@@ -95,7 +95,7 @@ export const initialize = async (
 		Program_ID
 	)
 
-	let tx = await program.methods
+	const  tx = await program.methods
 		.initialize()
 		.accountsPartial({
 			user: publicKey,
@@ -154,7 +154,7 @@ export const createPoll = async (
 	const startBN = new BN(start)
 	const endBN = new BN(end)
 
-	let tx = await program.methods
+	const  tx = await program.methods
 		.createPoll(description, startBN, endBN)
 		.accountsPartial({
 			user: publicKey,
@@ -216,7 +216,7 @@ export const registerCandidate = async (
 		Program_ID
 	)
 
-	let tx = await program.methods
+	const  tx = await program.methods
 		.registerCandidate(PID, name)
 		.accountsPartial({
 			user: publicKey,
@@ -278,7 +278,7 @@ export const vote = async (
 		Program_ID
 	)
 
-	let tx = await program.methods
+	const  tx = await program.methods
 		.giveVote(PID, CID)
 		.accountsPartial({
 			user: publicKey,
