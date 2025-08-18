@@ -1,8 +1,34 @@
-# THIS IS A SOLANA DECENTRALIZED VOTING APPLICATION
-
 # 🗳️ Solana Voting dApp
 
 A decentralized voting application built on **Solana** using the **Anchor framework** for the smart contract and **Next.js** for the frontend.
+
+---
+
+## 📁 Project Structure
+
+```
+voting/
+├── programs/
+│   └── voting/           # Anchor smart contract programs
+│       ├── src/
+│       │   ├── instructions/ # Program instructions (create_poll, vote, etc.)
+│       │   └── state/        # Account states (Poll, Candidate, Voter, etc.)
+│       └── Cargo.toml
+├── voting-frontend/    # Next.js frontend application
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/ # React components 
+│   │   │   ├── create/     # Poll creation page
+│   │   │   ├── polls/[pollId]/ # Dynamic poll details page
+│   │   │   ├── services/   # Solana RPC and program interaction
+│   │   │   └── store/      # Redux-like store management
+│   │   └── utils/      # Utility functions and interfaces
+│   ├── package.json    # Frontend dependencies
+│   └── next.config.ts
+├── Anchor.toml           # Anchor workspace configuration
+├── Cargo.toml            # Rust workspace dependencies
+└── LICENSE
+```
 
 ---
 
@@ -22,7 +48,7 @@ A decentralized voting application built on **Solana** using the **Anchor framew
 - **Smart Contract:** [Anchor](https://www.anchor-lang.com/) (Rust framework for Solana programs)  
 - **Frontend:** [Next.js](https://nextjs.org/) + [React](https://react.dev/)  
 - **Wallet Integration:** [Solana Wallet Adapter](https://github.com/solana-labs/wallet-adapter)  
-- **Language:** TypeScript Rust 
+- **Languages:** TypeScript (Frontend), Rust (Smart Contract)
 - **Blockchain:** Solana Devnet 
 
 ---
@@ -46,8 +72,9 @@ anchor --version
 rustc  --version
 node -v
 yarn -v
+```
 
-## 🛠️ Local Setup
+### 🛠️ Local Setup
 
 Follow these steps to set up both the **smart contract** and **frontend** locally:  
 
@@ -57,21 +84,39 @@ Follow these steps to set up both the **smart contract** and **frontend** locall
 git clone https://github.com/sthitasahu/solana-voting.git
 cd solana-voting
 
-# In a new terminal, build and deploy the program/smart contract
+# Build and deploy the Anchor program (smart contract) to Solana Devnet
 anchor build
 anchor deploy
 
-# Frontend setup
+# Navigate to the frontend directory
 cd voting-frontend
+
+# Install frontend dependencies
 pnpm install
+
+# Start the Next.js development server
 pnpm dev
-Now open 👉 http://localhost:3000 in your browser.
+```
+Now open 👉 `http://localhost:3000` in your browser.
 
+---
 
+## 🤝 Contributing
 
+Contributions are welcome! If you have suggestions for improvements or find any issues, please feel free to open an issue or submit a pull request.
 
+---
 
+### 📜 License  
 
+This project is licensed under the **MIT License** – see the [LICENSE](./LICENSE) file for details.  
 
+You are free to:  
+- ✅ Use the code for personal and commercial projects  
+- ✅ Modify and distribute it  
+- ✅ Learn and build upon it  
 
+But you must:  
+- ⚖️ Include the original copyright and license notice in any copy  
+- ⚖️ Provide attribution to the authors 
 
