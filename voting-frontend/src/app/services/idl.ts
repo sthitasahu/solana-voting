@@ -1,17 +1,38 @@
 import { AnchorProvider, BN, Program, Wallet } from "@coral-xyz/anchor";
-import idl from '../idl/voting.json'
-import {Voting}  from '../idl/voting'
+import idl from '../../../../target/idl/voting.json'
+import { Voting } from "../../../../target/types/voting"
 import {
 	PublicKey,
 	Connection,
 	SystemProgram,
 	TransactionSignature,
-	
+	Transaction,
+	VersionedTransaction
 } from "@solana/web3.js"
 import { Candidate, Poll } from '../utils/interface'
 import { store } from '../store'
 import { globalActions } from '../store/globalSlices'
 
+interface ProgramAccount<T> {
+  publicKey: PublicKey;
+  account: T;
+}
+
+interface CandidateAccount {
+  cid: BN;
+  pollId: BN;
+  name: string;
+  votes: BN;
+  hasRegistered: boolean;
+}
+
+interface PollAccount {
+  id: BN;
+  description: string;
+  start: BN;
+  end: BN;
+  candidates: BN;
+}
 
 const Program_ID = new PublicKey(idl.address)
 const RPC_URL = "https://api.devnet.solana.com"
@@ -19,8 +40,8 @@ const RPC_URL = "https://api.devnet.solana.com"
 
 export const getProvider = (
 	publicKey: PublicKey | null,
-	signTransaction: any,
-	sendTransaction: any
+	signTransaction: ((transaction: Transaction | VersionedTransaction) => Promise<Transaction | VersionedTransaction>) | undefined,
+	sendTransaction: ((transaction: Transaction, connection: Connection) => Promise<TransactionSignature>) | undefined
 ): Program<Voting> | null => {
 	if (!publicKey || !signTransaction) {
 		console.error('Wallet not connected or missing signTransaction.')
@@ -34,7 +55,7 @@ export const getProvider = (
 		{ commitment: 'processed' }
 	)
 
-	return new Program<Voting>(idl as any, provider)
+	return new Program<Voting>(idl as Voting, provider)
 }
 
 
@@ -42,21 +63,22 @@ export const getReadonlyProvider = (): Program<Voting> => {
 	const connection = new Connection(RPC_URL, 'confirmed')
   
 	// Use a dummy wallet for read-only operations
-	const dummyWallet = {
+	const dummyWallet: Wallet = {
 	  publicKey: PublicKey.default,
-	  signTransaction: async () => {
+	  signTransaction: async <T extends Transaction | VersionedTransaction>(tx: T) => {
 		throw new Error('Read-only provider cannot sign transactions.')
 	  },
-	  signAllTransactions: async () => {
+	  signAllTransactions: async <T extends Transaction | VersionedTransaction>(txs: T[]) => {
 		throw new Error('Read-only provider cannot sign transactions.')
 	  },
+	  payer: {} as Wallet['payer'] // Dummy payer
 	}
   
-	const provider = new AnchorProvider(connection, dummyWallet as any, {
+	const provider = new AnchorProvider(connection, dummyWallet, {
 	  commitment: 'processed',
 	})
   
-	return new Program<Voting>(idl as any, provider)
+	return new Program<Voting>(idl as Voting, provider)
   }
   
 //get the counter pda 
@@ -95,7 +117,7 @@ export const initialize = async (
 		Program_ID
 	)
 
-	const  tx = await program.methods
+	const tx = await program.methods
 		.initialize()
 		.accountsPartial({
 			user: publicKey,
@@ -154,7 +176,7 @@ export const createPoll = async (
 	const startBN = new BN(start)
 	const endBN = new BN(end)
 
-	const  tx = await program.methods
+	const tx = await program.methods
 		.createPoll(description, startBN, endBN)
 		.accountsPartial({
 			user: publicKey,
@@ -216,7 +238,7 @@ export const registerCandidate = async (
 		Program_ID
 	)
 
-	const  tx = await program.methods
+	const tx = await program.methods
 		.registerCandidate(PID, name)
 		.accountsPartial({
 			user: publicKey,
@@ -278,7 +300,7 @@ export const vote = async (
 		Program_ID
 	)
 
-	const  tx = await program.methods
+	const tx = await program.methods
 		.giveVote(PID, CID)
 		.accountsPartial({
 			user: publicKey,
@@ -340,11 +362,11 @@ export const fetchAllPolls = async (
   }
   
 
-const serializedPoll = (polls: any[]): Poll[] =>
-	polls.map((c: any) => ({
-	  ...c.account,
+const serializedPoll = (polls: ProgramAccount<PollAccount>[]): Poll[] =>
+	polls.map((c) => ({
 	  publicKey: c.publicKey.toBase58(),
 	  id: c.account.id.toNumber(),
+	  description: c.account.description,
 	  start: c.account.start.toNumber() * 1000,
 	  end: c.account.end.toNumber() * 1000,
 	  candidates: c.account.candidates.toNumber(),
@@ -360,23 +382,22 @@ const serializedPoll = (polls: any[]): Poll[] =>
 		const PID = new BN(pollData.id)
 	  
 		const candidateAccounts = await program.account.candidate.all()
-		const candidates = candidateAccounts.filter((candidate) => {
-		  // Assuming the candidate account has a field `pollId` or equivalent
+		const candidates = candidateAccounts.filter((candidate: ProgramAccount<CandidateAccount>) => {
 		  return candidate.account.pollId.eq(PID)
 		})
 	   
 		store.dispatch(globalActions.setCandidates(serializedCandidates(candidates)))
-		return candidates as unknown as Candidate[]
+		return serializedCandidates(candidates)
 	  }
 	  
-	  const serializedCandidates = (candidates: any[]): Candidate[] =>
-		candidates.map((c: any) => ({
-		  ...c.account,
-		  publicKey: c.publicKey.toBase58(), // Convert to string
+	  const serializedCandidates = (candidates: ProgramAccount<CandidateAccount>[]): Candidate[] =>
+		candidates.map((c) => ({
+		  publicKey: c.publicKey.toBase58(),
 		  cid: c.account.cid.toNumber(),
 		  pollId: c.account.pollId.toNumber(),
 		  votes: c.account.votes.toNumber(),
 		  name: c.account.name,
+		  hasRegistered: c.account.hasRegistered,
 		}))
 	  
 	  export const hasUserVoted = async (
